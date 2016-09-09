@@ -1,0 +1,6 @@
+{
+  "webide": {
+    "prepackage": "cordova prepare",
+    "packageDir": "./platforms/firefoxos/www"
+  }
+}

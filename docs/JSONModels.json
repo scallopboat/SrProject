@@ -1,0 +1,71 @@
+MAP
+{
+    "map_key": {
+        "k": number,
+        "j": number,
+        "i": number
+    },
+    "tiles": [
+        {
+            "x": number,
+            "y": number,
+            "type": number
+        },
+	...]
+}
+
+MESSAGES
+{
+    "x": number,
+    "y": number,
+    "i": number,
+    "j": number,
+    "xMin": number,
+    "yMin": number,
+    "xMax": number,
+    "yMax": number,
+    "msgType": number,
+    "msg": string,
+    "uuid": number,
+    "dateSent": {
+        "$date": string
+    },
+    "k": number
+}
+
+TILE
+{
+    "type": number
+    "blockable": number,
+    "img": string
+}
+
+USER
+{
+    "displayName": string,
+    "email": string,
+    "firstName": string,
+    "lastName": string,
+    "spriteImage": string,
+    "password": string
+    "x": number,
+    "y": number,
+    "i": number,
+    "j": number,
+    "created": {
+        "$date": string
+    },
+    "lastUpdated": {
+        "$date": string
+    },
+    "lastLoginDate": {
+        "$date": string
+    },
+    "uuid": number,
+    "birthDate": {
+        "$date": string
+    },
+    "aboutMe": string,
+    "favBooks": string,
+    "favMovies": string
+}

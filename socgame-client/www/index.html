@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<!--
+    SocGame client code for cordova.
+    This application is intended to be written as a SPA.
+
+<html ng-app="socgame">-->
+<html>
+
+<head>
+	<!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+	<!-- Set this when ready to deploy -->
+	<!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">-->
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<!--<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, target-densityDpi=device-dpi" />-->
+	<title>SocGame</title>
+	<style type="text/css">
+		/* Encourages a user from the browser to use landscape.*/
+		
+		#warning-message {
+			display: none;
+		}
+		
+		@media only screen and (orientation:portrait) {
+			#parent_wrapper {
+				display: none;
+			}
+			#warning-message {
+				display: block;
+			}
+		}
+		
+		@media only screen and (orientation:landscape) {
+			#warning-message {
+				display: none;
+			}
+		}
+		
+		#warning-message-login {
+			display: none;
+		}
+		
+		@media only screen and (orientation:portrait) {
+			#login-body {
+				display: none;
+			}
+			.modal-footer {
+				display: none;
+			}
+			.modal-header {
+				display: none;
+			}
+			#warning-message-login {
+				display: block;
+			}
+		}
+		
+		@media only screen and (orientation:landscape) {
+			#warning-message-login {
+				display: none;
+			}
+		}
+	</style>
+	<script type="text/javascript" src="cordova.js"></script>
+	<script type="text/javascript" src="js/libs/angular.js/angular.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.js/angular-animate.js"></script>
+	<script type="text/javascript" src="js/libs/angular.js/angular-touch.js"></script>
+	<script type="text/javascript" src="js/socgame.js"></script>
+	<script type="text/javascript" src="js/services/socgame_services.js"></script>
+	<script type="text/javascript" src="js/services/socgame_sprite.js"></script>
+	<script type="text/javascript" src="js/libs/angular-ui-bootstrap/ui-bootstrap-tpls-0.14.2.min.js"></script>
+	<!--<script type="text/javascript" src="js/libs/cordova.js"></script>-->
+
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/index.css">
+
+	<!-- Modals -->
+	<script type="text/ng-template" id="LoginScreen.html">
+		<div class="welcome login" id="login_parent">
+			<div class="modal-header">
+				<h3 class="modal-title">SocGame : {{user.isNew ? 'Create User' : 'Login'}}</h3>
+				<a id="switch_login_view" href="" name="xx" ng-click="user.isNew = !user.isNew">{{user.isNew ? 'Go to login' : 'Creat a new account'}}</a>
+				<!-- Temp spot for server override
+            &nbsp;&nbsp;&nbsp;&nbsp;<a id="switch_login_view" href="" name="xx" ng-click="showServer = !showServer">Set Server</a>
+            Temp spot for server override -->
+			</div>
+			<div id="warning-message-login">
+				<p>
+					<font color="white">This application is only viewable in landscape mode</font>
+					<img id="orient-img" src="./img/rotate2.gif"></img>
+				</p>
+			</div>
+			<div class="modal-body" id="login-body">
+				<form ng-show="!user.isNew">
+
+					<!-- Temp spot for server override -->
+					<div ng-show="showServer">
+						<label for="exampleInputServer">Server IP -- http://
+							<what you enter> / </label>
+						<input type="text" ng-model="serverIp" class="form-control" id="exampleInputServer" placeholder="IP Address">
+						<button class="btn btn-primary" type="button" ng-click="SetIP()">Server Override</button>
+					</div>
+					<!-- Temp spot for server override -->
+
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="exampleInputEmail1">Email address</label>
+						<input type="email" ng-model="user.email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+					</div>
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="exampleInputPassword1">Password</label>
+						<input type="password" ng-model="user.password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+					</div>
+				</form>
+				<form ng-show="user.isNew">
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="create_display_name">Display Name</label>
+						<input type="text" ng-model="user.displayName" class="form-control" id="create_display_name" placeholder="Rock N' Roll Cool Guy" required>
+					</div>
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="create_email">Email</label>
+						<input type="email" ng-model="user.email" class="form-control" id="create_email" placeholder="example@email.com" required>
+					</div>
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="create_first_name">First Name</label>
+						<input type="text" ng-model="user.firstName" class="form-control" id="create_first_name" placeholder="First" required>
+					</div>
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="create_last_name">Last Name</label>
+						<input type="text" ng-model="user.lastName" class="form-control" id="create_last_name" placeholder="Last" required>
+					</div>
+					<!-- Ignore birth date for now.. -->
+					<!--<div class="form-group">
+                    <label for="create_birth_date">Date of Birth</label>
+                    <input type="date" ng-model="user.birthDate" class="form-control" id="create_birth_date" placeholder="Date of Birth" required>
+                </div>-->
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="create_password">Password</label>
+						<input type="password" ng-model="user.password" class="form-control" id="create_password" required>
+					</div>
+					<div class="form-group otherProfileGroup" align="center">
+						<label for="verify_password">Verify Password</label>
+						<input type="password" ng-model="verifyPassword" class="form-control" id="verify_password" required>
+					</div>
+					<div ng-hide="goodToGo = user.password == verifyPassword">
+						<font color="red">Password does not match</font>
+					</div>
+					<div style="height: 25%; width:25%; margin: 10px;">
+						<h4>Select Avatar</h4>
+						<uib-carousel no-wrap="noWrapSlides" style="border: solid black 3px;">
+							<uib-slide ng-repeat="slide in slides" active="slide.active" ng-model="currentSlide">
+								<img ng-src="{{slide.image}}" style="margin:auto; height:50px; width:50px;">
+								<div class="carousel-caption">
+									<p>{{slide.text}}</p>
+								</div>
+							</uib-slide>
+						</uib-carousel>
+					</div>
+				</form>
+				<div ng-hide="message.text.length == 0">
+					<font color="{{message.color}}">{{message.text}}</font>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary myButton" type="button" ng-click="Login()">{{user.isNew ? 'Create User' : 'Login'}}</button>
+			<!--<button class="btn btn-warning" type="button" ng-click="Cancel()">Cancel</button>-->
+		</div>
+	</script>
+</head>
+
+<body ng-controller="mainController" data-ng-init="init()" id="full-body">
+	<div id="warning-message-login">
+		<p>
+			<font color="white">This application is only viewable in landscape mode</font>
+			<img id="orient-img" src="./img/rotate2.gif"></img>
+		</p>
+	</div>
+	<div class="parent" id="parent_wrapper">
+		<div id="helpScreen" ng-show="helpWanted">
+			<p>Fill with small help screen.</p>
+		</div>
+		<div class="main_content" id="map_area" ng-click="ExecuteClickEventOnMap($event)">
+			<img ng-src="{{mapImg}}" id="map" />
+			<!--<div id="loading" ng-show="loading"><p>Loading</p></div>-->
+			<div id="loading" ng-show="loading">
+				<p id="loadText">{{loadMessage}}</p>
+				<div class="loader">Loading...</div>
+			</div>
+		</div>
+		<div class="container menu" id="right_menu_parent">
+			<!-- RIGHT MENU-->
+			<div class="btn-group" uib-dropdown is-open="status.isopen" id="menu-wrapper">
+				<button id="menu-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+					<img src="./img/mobile_menu_icon.gif"></img>
+					<span id="alert-bar">{{location}}{{notification.length > 0 ? ': ' : ''}}{{notification}}</span>
+				</button>
+				
+				<ul uib-dropdown-menu role="menu" aria-labelledby="menu-button">
+					<li role="menuitem"><a href="#" ng-click="switchView('chat-wrapper')">Chat</a></li>
+					<li class="divider"></li>
+					<li role="menuitem"><a href="#" ng-click="switchView('dispOther')">View Profiles</a></li>
+					<li class="divider"></li>
+					<li role="menuitem"><a href="#" ng-click="switchView('edit-profile')">Edit My Profile</a></li>
+					<li class="divider"></li>
+					<li role="menuitem"><a href="#" ng-click="switchView('about')">About</a></li>
+					<!--<li class="divider"></li>
+					<li role="menuitem"><a href="#">Separated link</a></li>-->
+				</ul>
+			</div>
+			<div id="option-wrapper">
+				<div id="chat-wrapper">
+					<div id="receive-message-area">
+						<ul class="example-animate-container">
+							<li class="animate-repeat" ng-repeat="msg in chat.allMessages track by $index">
+								{{msg}}
+							</li>
+						</ul>
+					</div>
+					<div id="send-message-area">
+						<div class="form-group send-message">
+							<form ng-submit="sendMessage()">
+								<div align="center" id="send-btn-wrapper">
+									<button type="submit" id="msg-submit" class="btn btn-default">Send</button>
+								</div>
+								<textarea ng-model="chat.toSendMessage" class="form-control send-message" wrap="hard" id="send" placeholder="Message to Send"></textarea>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div id="dispOther" class="displayOthersGroup" style="display: none;">
+					<div align="center" class="otherProfileImage" id="otherProfileImage">
+						<div class="otherHeading"><img src="{{spriteImageBaseUrl + '/' + dispOther.spriteImage}}" alt="No User Selected"></div>
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">Name</div>{{dispOther.displayName}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">Email</div>{{dispOther.email}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">First Name</div>{{dispOther.firstName}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">Last Name</div>{{dispOther.lastName}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">About Me</div>{{dispOther.aboutMe}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">Favorite Movies</div>{{dispOther.favMovies}}
+					</div>
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading">Favorite Books</div>{{dispOther.favBooks}}
+					</div>
+				</div>
+				<div id="edit-profile" style="display: none;">
+					<div align="center" class="otherProfileGroup">
+						<div class="otherHeading" id="editProfileTitle">Edit Profile</div>
+					</div>
+					<form id="profile-form" ng-submit="updateProfile()">
+						<div align="center" class="otherProfileImage" id="heroProfileImage">
+							<div class="otherHeading"><img src="{{spriteImageBaseUrl + '/' + dispOther.spriteImage}}" alt="No User Selected"></div>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_display_name" class="otherHeading">Display Name</label>
+							<input type="text" ng-model="user.displayName" class="form-control" id="create_display_name" placeholder="Rock N' Roll Cool Guy" required>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_first_name">First Name</label>
+							<input type="text" ng-model="user.firstName" class="form-control" id="create_first_name" placeholder="First" required>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_last_name">Last Name</label>
+							<input type="text" ng-model="user.lastName" class="form-control" id="create_last_name" placeholder="Last" required>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_about_me">About Me</label>
+							<textarea ng-model="user.aboutMe" id="create_about_me" rows="4" placeholder="About Me" class="form-control send-message"></textarea>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_fav_movies">Favorite Movies</label>
+							<textarea ng-model="user.favMovies" id="create_fav_movies" rows="2" placeholder="Favorite Movies" class="form-control send-message"></textarea>
+						</div>
+						<div class="form-group otherProfileGroup">
+							<label for="create_fav_books">Favorite Books</label>
+							<textarea ng-model="user.favBooks" id="create_about_me" rows="2" placeholder="Favorite Books" class="form-control send-message"></textarea>
+						</div>
+						<button type="submit" class="myButton btn btn-default">Save Changes</button>
+					</form>
+				</div>
+				<div id="about" class="displayOthersGroup" style="display: none;">
+					<h3><b>SocGame Project</b></h3>
+					<h4><b>Overview</b></h4>
+					<p>
+						The intent of this project is to create a simple cross platform web based application for mobile devices. In this project some specific problems were targeted from the beginning, such as how to implement a client to be as thin as possible, and how work around known issues when working with a specific framework.
+					</p>
+
+					<h4><b>Goals</b></h4>
+					<ul>
+						<li><b>Create a cross platform application that runs on iOS, Android, and popular web browsers.</b></li>
+						<li><b>Implement the entire system in web languages.</b></li>
+						<li><b>Maintain a thin client by offloading heavy processing tasks to the server.</b></li>
+					</ul>
+					<h4><b>Primary Features</b></h4>
+					<ul>
+						<li><b>Cross platform mobile application.</b></li>
+						<li><b>Runs in popular web browsers.</b></li>
+						<li><b>Entire system implemented with web languages (client and server).</b></li>
+						<li><b>Server side image rendering at call time.</b></li>
+						<li><b>Animations completely done in Javasscipt and CSS (no Canvas element).</b></li>
+					</ul>
+					<h4><b>Architecture and Technologies</b></h4>
+					<ul>
+						<li><b>MEAN Stack</b>
+							<ul>
+								<li><b>MongoDB</b> - Schemaless NoSQL database.</li>
+								<li><b>Express</b> - Server side framework for Node.js.</li>
+								<li><b>AngularJS</b> - Client Side web application framework.</li>
+								<li><b>Node.js</b> - Server side Javascript execution environment.</li>
+							</ul>
+							<li><b>PhoneGap</b>
+								<ul>
+									<li>Mobile application development framework. Builds mobile applications from an HTML, CSS, Javascript code base.</li>
+									<li><b>Platforms Supported:</b>
+										<ul>
+											<li>iOS</li>
+											<li>Android</li>
+											<li>Windows Phone</li>
+											<li>Amazon fireOS</li>
+											<li>Blackberry</li>
+											<li>FirefoxOS</li>
+											<li>Ubuntu</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+					</ul>
+					<h4><b>Problems and Challenges Targeted</b></h4>
+					<ul>
+						<li><b>Animations in HTML5 Canvas on Android WebView run slowly (15fps).</b>
+							<ul>
+								<li><b>Solution</b>: Use CSS transitions for animations instead of Canvas.</li>
+								<li><b>Result:</b>
+									<ul>
+										<li>Animations in the Android webView are still "choppy". When using the application on a browser or an iOS device, the animations are extremely smooth, running at about 30fps.</li>
+										<li>When reducing the frequency of the polling loop to the server, animations and application response time improved. It might be beneficial to leverage web sockets in the future as opposed to a cpu intensive polling loop.</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+						<li><b>Reduce image rendering time on the client.</b>
+							<ul>
+								<li><b>Solution</b>: Off load rendering of maps to the server.
+									<ul>
+										<li>The server generates the map in the form of a png file at call time.</li>
+										<li>A map definition document is stored in the Mongo database. The server uses this information to draw the map using Canvas on the server.</li>
+										<li>Each map is represented as an array of json objects. The client gets this data along with the map to define the behavior of each tile.</li>
+									</ul>
+								</li>
+								<li><b>Result</b>: The server draws a new map in roughly 3 seconds. This time could be decreased with hardware improvements on the server.</li>
+							</ul>
+						</li>
+						<li><b>Make application real time without using WebSockets.</b>
+							<ul>
+								<li><b>Solution</b>: Implement a RESTful API on the server and poll for updates on the client in a loop.</li>
+								<li><b>Result</b>: Not using sockets created a lot of latency issues in the application. It generally takes one to two seconds for changes to show between two clients.</li>
+							</ul>
+						</li>
+					</ul>
+					<h4><b>Conclusion</b></h4>
+					<p>
+						As this project progressed, it became more and more clear that implementing animations and adding logical definitions to graphics (tiles) would be more effort than originally intended. The map portion of this application and allowing avatars to move about different maps and not be allowed to pass through buildings became a mini game engine, and required a considerable amount of focus to support in iOS and Android devices. This was not the original intent of the project, but a lot was learned in the process.
+					</p>
+					<p>
+						One of the most important parts of learning the Phonegap framework was how much focus needs to be placed on Android in the development process; iOS was by far the more cooperative and faster when it came to performance and reliability. The required focus it took to stabilize the application in Android was the reason why many features had to be descoped from the project.
+					</p>
+					<p>
+						Overall this project was a success. The application runs in Android, iOS, and major web browsers, and it's done with a single code base. Phonegap has been found to be a viable technology to leverage when creating cross platform mobile applications, though special care needs to be taken to ensure the same behavior exists across all targeted platforms.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			
+				var elem = document.getElementById("full-body");
+				
+				if (elem.requestFullscreen) {
+				elem.requestFullscreen();
+				} else if (elem.msRequestFullscreen) {
+				elem.msRequestFullscreen();
+				} else if (elem.mozRequestFullScreen) {
+				elem.mozRequestFullScreen();
+				} else if (elem.webkitRequestFullscreen) {
+				elem.webkitRequestFullscreen();
+				}
+			
+
+
+			function bootstrapAngular() {
+				console.log("Bootstrapping AngularJS");
+				
+				// This assumes your app is named "app" and is on the body tag: <body ng-app="app">
+				// Change the selector from "body" to whatever you need
+				var domElement = document.querySelector('html');
+				// Change the application name from "app" if needed
+				angular.bootstrap(domElement, ['socgame']);
+			}
+
+			// This method of user agent detection also works, though it means you might have to maintain this UA list
+			//if (navigator.userAgent.match(/(iOS|iPhone|iPod|iPad|Android|BlackBerry)/)) {
+			if ((window.cordova || window.PhoneGap || window.phonegap) && /^file:\/{3}[^\/]/i.test(window.location.href) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent)) {
+				console.log("UA: Running in Cordova/PhoneGap");
+				document.addEventListener("deviceready", bootstrapAngular, false);
+			} else {
+				console.log("UA: Running in browser");
+				//requestFull();
+				bootstrapAngular();
+			}
+		</script>
+		<div id="warning-message">
+			<p>
+				<font color="white">This application is only viewable in landscape mode</font>
+				<img id="orient-img" src="./img/rotate2.gif"></img>
+			</p>
+		</div>
+</body>
+
+</html>

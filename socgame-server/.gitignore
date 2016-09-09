@@ -1,0 +1,14 @@
+.c9/
+.idea/
+.settings/
+/data
+mongod-start
+/nbproject/private/
+nbproject
+node_modules
+/debug.bat
+.project
+build/
+/sublime_socgame-server.sublime-workspace
+/sublime_socgame-server.sublime-project
+/run.bat
